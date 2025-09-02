@@ -1,0 +1,100 @@
+# Configuration file for the Sea level drivers with explainable AI study.
+
+region:
+ lon: [0, 30.2]
+ lat: [50, 67]
+ 
+time:
+ start: 1960
+ end: 2016
+ mongap: 36
+ daygap: 3
+ test: [2011, 2016]
+ 
+stations: [13, 23, 80, 118, 239]
+ 
+drivers:
+ local: ['msl', 'u10', 'v10', 'sst', 'tp', 'e', 'ro']
+ remote: ['nao', 'green', 'anta', 'glosst']
+ point: ['msl', 'u10', 'v10', 'sst']
+ integ: ['tp', 'e', 'ro']
+ order: ['u10', 'v10', 'msl', 'nao', 'sst', 'glosst', 'tp', 'e', 'ro', 'green', 'anta']
+ 
+dirs:
+ data: ../Data/
+ figs: ../Figures/
+ orig: ../DataOriginal/
+ mod: ../Models/
+ test: Test/
+ sel: StationSelection/
+ ext: Extracted/
+ pro: Processed/
+ corr: Correlations/
+ tune: Tuning/
+ exp: Experiments/
+ val: Validation/
+ ts: TestSet/
+ fi: FeatureImportance/
+ ana: Analysis/
+ fin: Final/
+ 
+data_original:
+ sl: PSMSL_rlr_monthly_downloaded2024-11-06/
+ era5: ERA5_downloaded2024-11-06/ERA5_monthly_[var].nc
+ anta: AntarcticaHansen2021/ATF-TRANS_MRROS_[yyyy]_MM.nc # Antarctica dataset
+ green: GreenlandBamber/FWF17.v3_a.nc    # Greenland dataset
+ nao: NAO_downloaded2024-11-28.txt # NAO index from the NOAA Climate Prediction Center
+ reg: SeaLevelRegions.csv
+
+variables:
+ sl: sea_level
+ msl: mean_sea_level_pressure
+ u10: wind_u10
+ v10: wind_v10
+ sst: sea_surface_temperature
+ tp: precipitation
+ e: evaporation
+ ro: runoff
+ anta: antarctica
+ green: greenland
+ glosst: global_sst
+ nao: nao_index
+ mask: mask
+ 
+varnames:
+ sl: Sea level
+ msl: MSLP
+ u10: Wind zonal
+ v10: Wind meridional
+ sst: SST
+ tp: Precipitation
+ e: Evaporation
+ ro: Runoff
+ anta: Antarctica
+ green: Greenland
+ glosst: Global SST
+ nao: NAO index
+ 
+ 
+hyper:
+ learning_rate: 0.001
+ loss_fun: 'mean_squared_error'
+ epochs: 30
+ val_len: 6
+ N: 100
+ Ndrop: 10
+ 
+dim:
+ s: stations
+ l: layers
+ n: sequence_len
+ a: activation
+ u: units
+ m: model_run
+ f: feature
+ t: time
+ so: sort_order
+ 
+colors:
+ 1: ['maroon', 'teal', 'darkgoldenrod', 'purple', 'midnightblue']
+ 2: ['rosybrown', 'powderblue', 'tan', 'plum', 'cornflowerblue']
