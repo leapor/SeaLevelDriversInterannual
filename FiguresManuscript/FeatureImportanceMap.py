@@ -24,7 +24,7 @@ import string
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
 sys.path.insert(0, moduledir)
-from Functions import get_config, extract_xr_by_coord_index, convert_to_marker_size
+from Functions import get_config, convert_to_marker_size
 
 # ------------------------------------------------------------------------
 config = get_config()
