@@ -34,7 +34,7 @@ resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
 resfile = 'ResultsTestSet2012-2016.nc'
-figname = 'BaselineBestMap.png'
+figname = 'BaselineBestMap.pdf'
 
 # plotting parameters
 figsize = [20, 14]

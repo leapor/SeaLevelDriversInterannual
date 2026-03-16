@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# needs environmentSLD-vis
-
 # Plot the study area.
 #  - bathymetry+elevation (GEBCO)
 #  - locations of sea level stations, with PSMSL numbers
@@ -38,7 +36,7 @@ bathyfile = 'GEBCO_27_Jun_2025_coarser.nc'
 maskfile = 'ERA5_downloaded2024-11-06/ERA5_monthly_sst.nc' # sst file; land where NaN
 resfile = 'ResultsTestSet.nc'  # needed only for stations list and locations
 
-figname = 'StudyArea.png'
+figname = 'StudyArea.jpg'
 
 box_eg = 302 # which station to show box size on
 box_size = 2 # how many degrees on each side of the station to integrate
@@ -50,13 +48,28 @@ cmap = plt.get_cmap('BrBG_r')
 lonlim, latlim = config['region']['lon'], config['region']['lat']
 vmax = 1600  # max elevation and bathymetry
 col = 'grey' # grid points color
-# -------------------------------------------------------------------
 
+# list of regions
+reg = {\
+    'Norwegian Sea': [509, 682, 313], \
+    'North Sea': [413, 20, 9, 22, 32, 23, 25, 236, 24, 1037, 7, 1036, 80], \
+    'Baltic Sea': [118, 315, 14, 239, 376, 172, 285, 194, 79, 203, 88, 78, 2105, 69, 2106, 70], \
+    'Danish Straits': [119, 397, 81, 113, 330, 789, 98, 120, 13, 8, 11], \
+    'Skagerrak': [302, 179]}
+colorder = [3, 0, 2, 1, 4]
+colstat = {r: plt.rcParams['axes.prop_cycle'].by_key()['color'][o] for r, o in zip(reg.keys(), colorder)}
+nameloc = {\
+    'Norwegian Sea': [4.7, 63.3, 15], \
+    'North Sea': [3.5, 53.7, 15], \
+    'Baltic Sea': [19, 56.5, 70], \
+    'Danish Straits': [9.5, 52.5, 5], \
+    'Skagerrak': [7.5, 57, 18]}
+# -------------------------------------------------------------------
 
 # --- Create directory for saving figures ---
 if not os.path.exists(figdir):
 	os.makedirs(figdir)
-
+	
 
 # --- Load and prepare data ---
 # bathymetry
@@ -104,15 +117,27 @@ lon2d, lat2d = np.meshgrid(mask['lon'].values, mask['lat'].values)
 ax.scatter(lon2d[~mask.values], lat2d[~mask.values], marker='o', color=col, s=5)
 
 # plot stations' locations
-h = ax.scatter(loc['lon'].values, loc['lat'].values, marker='^', s=100, color='red')
+h = ax.scatter(loc['lon'].values, loc['lat'].values, marker='^', s=100, color='white') # dummy for adjust text
+hreg = []
+for r, s in reg.items():
+    hreg.append(ax.scatter(loc['lon'].loc[{dim['s']:s}].values, loc['lat'].loc[{dim['s']:s}].values, \
+        marker = '^', s=200, color=colstat[r], edgecolor='k', lw=0.7, zorder=101, label=r))
+
+# add station IDs
 txt = [None] * len(stat)
 for i in range(len(stat)):
     s = stat[i]
     txt[i] = ax.text(loc['lon'].loc[{dim['s']:s}].values, \
         loc['lat'].loc[{dim['s']:s}].values, \
         s, \
-        ha='center', va='center', fontsize=16, color='k', fontweight='bold')
+        ha='center', va='center', fontsize=16, color='k', fontweight='bold', zorder=102)
 adjust_text(txt, objects=h, ax=ax)
+
+# legend for regions
+for r, l in nameloc.items():
+    x, y, rot = l
+    plt.text(x, y, r, fontsize=30, ha='left', va='bottom', rotation=rot)
+#plt.legend(loc='lower right', fontsize=20) #, frameon=False)
 
 # plot size of integrated area (on sample station)
 lon0 = loc['lon'].loc[{dim['s']:box_eg}].values

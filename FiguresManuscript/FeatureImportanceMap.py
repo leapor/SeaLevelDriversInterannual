@@ -39,7 +39,7 @@ resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
 resfile = 'ResultsTestSet2012-2016.nc'
-figname = 'FeatureImportanceMap.png'
+figname = 'FeatureImportanceMap.jpg'
 
 mincont = 2 # minimal contribution
 
