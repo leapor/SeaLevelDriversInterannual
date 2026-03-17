@@ -1,6 +1,5 @@
-# Code for: "Drivers of interannual to decadal sea level variability in northern Europe - Data driven approach"
+# Code for: "Drivers of interannual to decadal sea level variability in northern Europe - Data driven approach" (under review)
 ## by Lea Poropat and Céline Heuzé
-## (under review)
 
 This repository contains the implementation and experimental code for the manuscript “Drivers of interannual to decadal sea level variability in northern Europe - Data driven approach”, currently under review.
 
