@@ -70,6 +70,3 @@ Code is written in Python. Two separate environments are used:
    Python 3.8.10 and TensorFlow 2.13.1
 2. **Pre/Post-processing environment** (environmentSLD-vis)
    Used for data preprocessing, analysis, and figure generation.
-   
-## Data
-Input data, trained networks (best sequence length at each station) and results can be found here:
