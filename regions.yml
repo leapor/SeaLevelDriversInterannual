@@ -34,10 +34,10 @@ dan:
  name: Danish Straits
  stat: [119, 397, 81, 113, 330, 789, 98, 120, 13, 8, 11]
  col: '#d01c8b'
- nameloc: [9.5, 52.5, 5]
+ nameloc: [9.5, 52, 5]
  
 ska:
  name: Skagerrak
  stat: [302, 179]
- col: '#000000'
+ col: '#ffffff' #'#000000'
  nameloc: [7.5, 57, 18]
