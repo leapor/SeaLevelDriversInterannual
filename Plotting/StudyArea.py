@@ -11,6 +11,7 @@ moduledir = '../Scripts/'  # directory with the Functions file
 
 import os
 import sys
+import yaml
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -28,16 +29,20 @@ config = get_config()
 
 dim = config['dim']
 
+# directories
 origdir = config['dirs']['orig']
 resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
+# file names
 bathyfile = 'GEBCO_27_Jun_2025_coarser.nc'
 maskfile = 'ERA5_downloaded2024-11-06/ERA5_monthly_sst.nc' # sst file; land where NaN
 resfile = 'ResultsTestSet.nc'  # needed only for stations list and locations
+reginfo = 'regions.yml'
 
-figname = 'StudyArea.jpg'
+figname = 'Fig1_StudyArea.jpg'
 
+# info for plotting box around a station
 box_eg = 302 # which station to show box size on
 box_size = 2 # how many degrees on each side of the station to integrate
 
@@ -48,22 +53,6 @@ cmap = plt.get_cmap('BrBG_r')
 lonlim, latlim = config['region']['lon'], config['region']['lat']
 vmax = 1600  # max elevation and bathymetry
 col = 'grey' # grid points color
-
-# list of regions
-reg = {\
-    'Norwegian Sea': [509, 682, 313], \
-    'North Sea': [413, 20, 9, 22, 32, 23, 25, 236, 24, 1037, 7, 1036, 80], \
-    'Baltic Sea': [118, 315, 14, 239, 376, 172, 285, 194, 79, 203, 88, 78, 2105, 69, 2106, 70], \
-    'Danish Straits': [119, 397, 81, 113, 330, 789, 98, 120, 13, 8, 11], \
-    'Skagerrak': [302, 179]}
-colorder = [3, 0, 2, 1, 4]
-colstat = {r: plt.rcParams['axes.prop_cycle'].by_key()['color'][o] for r, o in zip(reg.keys(), colorder)}
-nameloc = {\
-    'Norwegian Sea': [4.7, 63.3, 15], \
-    'North Sea': [3.5, 53.7, 15], \
-    'Baltic Sea': [19, 56.5, 70], \
-    'Danish Straits': [9.5, 52.5, 5], \
-    'Skagerrak': [7.5, 57, 18]}
 # -------------------------------------------------------------------
 
 # --- Create directory for saving figures ---
@@ -86,6 +75,10 @@ mask = mask.isnull().all(dim='date')
 loc = xr.open_dataset(resdir+resfile, engine='netcdf4')
 loc = loc[['lon', 'lat', 'name']]
 stat = loc.coords[dim['s']].values
+
+# region info
+with open(reginfo, 'r') as file:
+    reg = yaml.safe_load(file)
 
 
 
@@ -118,10 +111,12 @@ ax.scatter(lon2d[~mask.values], lat2d[~mask.values], marker='o', color=col, s=5)
 
 # plot stations' locations
 h = ax.scatter(loc['lon'].values, loc['lat'].values, marker='^', s=100, color='white') # dummy for adjust text
-hreg = []
-for r, s in reg.items():
-    hreg.append(ax.scatter(loc['lon'].loc[{dim['s']:s}].values, loc['lat'].loc[{dim['s']:s}].values, \
-        marker = '^', s=200, color=colstat[r], edgecolor='k', lw=0.7, zorder=101, label=r))
+hreg = [None] * len(reg)
+for ri,i in zip(reg.values(), range(len(reg))):
+    hreg[i] = ax.scatter(loc['lon'].loc[{dim['s']:ri['stat']}].values, \
+        loc['lat'].loc[{dim['s']:ri['stat']}].values, \
+        marker = '^', s=200, color=ri['col'], edgecolor='k', lw=0.7, zorder=101, \
+        label=ri['name'])
 
 # add station IDs
 txt = [None] * len(stat)
@@ -133,11 +128,10 @@ for i in range(len(stat)):
         ha='center', va='center', fontsize=16, color='k', fontweight='bold', zorder=102)
 adjust_text(txt, objects=h, ax=ax)
 
-# legend for regions
-for r, l in nameloc.items():
-    x, y, rot = l
-    plt.text(x, y, r, fontsize=30, ha='left', va='bottom', rotation=rot)
-#plt.legend(loc='lower right', fontsize=20) #, frameon=False)
+# region names
+for ri in reg.values():
+    x, y, rot = ri['nameloc']
+    plt.text(x, y, ri['name'], fontsize=30, ha='left', va='bottom', rotation=rot)
 
 # plot size of integrated area (on sample station)
 lon0 = loc['lon'].loc[{dim['s']:box_eg}].values

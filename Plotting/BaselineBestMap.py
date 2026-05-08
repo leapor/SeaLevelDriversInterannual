@@ -34,7 +34,7 @@ resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
 resfile = 'ResultsTestSet2012-2016.nc'
-figname = 'BaselineBestMap.pdf'
+figname = 'Fig4_BaselineMap.pdf'
 
 # plotting parameters
 figsize = [20, 14]
@@ -49,7 +49,9 @@ txtpar = dict(ha='left', va='top', size=fs0, bbox=bbox)
 
 m1, m2 = '^', {'LR': 'o', 'NN': 'd'}
 params = dict(s=300, edgecolor='k', lw=0.6)
-cmap1, cmap2 = 'jet', 'seismic'
+#cmap10, cmap11, cmap2 = 'jet', 'jet_r', 'seismic'  # original
+#cmap10, cmap11, cmap2 = 'afmhot_r', 'afmhot', 'seismic'
+cmaps = [['afmhot_r', 'afmhot'],['jet', 'seismic']]
 vmax, step = 10, 2 # max diff and step in the diff plot
 
 titles = ['a) Best model median', \
@@ -122,31 +124,33 @@ for a in ax.flat:
     
 # -- plot
 # upper left: best model median explained variance
-cmap = plt.get_cmap(cmap1)
+cmap = plt.get_cmap(cmaps[0][0])
 hc[0] = ax[0,0].scatter(lon, lat, c=med, marker=m1, cmap=cmap, **params)
 
 # upper right: best model IQR of explained variance
-cmap = plt.get_cmap(cmap1+'_r')
+cmap = plt.get_cmap(cmaps[0][1])
 hc[1] = ax[0,1].scatter(lon, lat, c=iqr, marker=m1, cmap=cmap, **params)
 
 # lower left: best model overall (type and sequence length)
 bounds = list(seq_len)+[max(seq_len)+1]
 norm = BoundaryNorm(boundaries=bounds, ncolors=len(seq_len))
 ticks = [(bounds[i]+bounds[i+1])/2 for i in range(len(bounds)-1)]
-cmap = plt.get_cmap(cmap1, len(seq_len))
+cmap = plt.get_cmap(cmaps[1][0], len(seq_len))
 for m,i in zip(mod, range(len(mod))):
     ind = (bestmod==m)
     hc[2] = ax[1,0].scatter(lon[ind], lat[ind], c=bestseq[ind], marker=m2[m], \
         cmap=cmap, norm=norm, **params)
     hl[i] = plt.scatter([], [], color=cmap(1), marker=m2[m], **params, label=models[m])
         
-# lower right: difference between NN and LR (medians)
+# lower right: difference between NN and LR (medians) + different markers for NN and LR
 bounds = np.arange(-vmax, vmax+1, step)
 norm = BoundaryNorm(boundaries=bounds, ncolors=len(bounds)+2, extend='both')
 ind = np.concatenate([np.linspace(0, 0.45, int(len(bounds)/2)+1), \
     np.linspace(0.55, 1, int(len(bounds)/2)+1)])
-cmap = ListedColormap(plt.get_cmap(cmap2)(ind))
-hc[3] = ax[1,1].scatter(lon, lat, c=diff, marker=m1, cmap=cmap, norm=norm, **params)
+cmap = ListedColormap(plt.get_cmap(cmaps[1][1])(ind))
+for m,i in zip(mod, range(len(mod))):
+    ind = (bestmod==m)
+    hc[3] = ax[1,1].scatter(lon[ind], lat[ind], c=diff[ind], marker=m2[m], cmap=cmap, norm=norm, **params)
 
 # colorbars
 for a,i in zip(ax.flat, range(len(hc))):

@@ -6,6 +6,7 @@ moduledir = '../Scripts/'  # directory with the Functions file
 
 import os
 import sys
+import yaml
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -29,10 +30,11 @@ resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
 resfile = 'ResultsTestSet2012-2016.nc'
-figname = 'BaselineAllBox.pdf'
+reginfo = 'regions.yml'
+figname = 'Fig3_BaselineBoxplot.pdf'
 
 # plotting parameters
-nr, nc = 12, 4  # 9, 5
+nr, nc = 12, 4
 figsize = [26, 32]
 subplots_adjust=dict(bottom=0.04,top=0.98,left=0.06,right=0.99,wspace=0.13,hspace=0.04)
 w = 0.4
@@ -40,10 +42,10 @@ alpha = 0.3
 lw1, lw2, lwf = 1, 2, 2
 col = {'NN': 'maroon', 'LR': 'teal', 'best': 'lightgrey'}
 
-fs0, fs1, fs2 = 26, 20, 16 # font size for title, subtitles, tick labels
+fs0, fs1, fs2, fs3 = 32, 26, 20, 16 # font size for xy labels, legend, subtitles, tick labels
 tx, ty = 0.015, 0.03
-txtpar = dict(ha='left', va='bottom', fontsize=fs1, bbox={'facecolor':'white', \
-    'edgecolor':'none', 'alpha':0.3})
+txtpar = dict(ha='left', va='bottom', fontsize=fs2, \
+    bbox={'facecolor':'white', 'edgecolor':'none', 'alpha':0.3})
     
 # order of the stations on the grid
 statord = np.array([ \
@@ -59,32 +61,23 @@ statord = np.array([ \
     [1037,  81, 113, 330], \
     [  24, 789,  98, 120], \
     [   7,  13,   8,  11]])
-
-# list of regions
-reg = {\
-    'Norwegian Sea': [509, 682, 313], \
-    'North Sea': [413, 20, 9, 22, 32, 23, 25, 236, 24, 1037, 7, 1036, 80], \
-    'Baltic Sea': [118, 315, 14, 239, 376, 172, 285, 194, 79, 203, 88, 78, 2105, 69, 2106, 70], \
-    'Danish Straits': [119, 397, 81, 113, 330, 789, 98, 120, 13, 8, 11], \
-    'Skagerrak': [302, 179]}
-colorder = [3, 0, 2, 1, 4]
-colreg = {r: plt.rcParams['axes.prop_cycle'].by_key()['color'][o] for r, o in zip(reg.keys(), colorder)}
 # ------------------------------------------------------------------------------
 
 # --- Load and prepare data ---
+# data
 res = xr.open_dataset(resdir+resfile, engine='netcdf4')
 name = res['name']
 res = res[met].loc[{dim['f']:'all'}].reset_coords(drop=True)
 
+# extract coordinates
 stat = res.coords[dim['s']].values
 seq_len = res.coords[dim['n']].values
 mod = res.coords['mod'].values
 name = {int(s): str(name.loc[{dim['s']:s}].values) for s in stat}
 
-
-# --- Prepare colors for stations ---
-colstat = {c: reg[r] for r, c in colreg.items()}
-colstat = {s: c for c,r in colstat.items() for s in r}
+# regions
+with open(reginfo, 'r') as file:
+    reg = yaml.safe_load(file)
 
 
 
@@ -98,7 +91,11 @@ best = {int(s): str(best.loc[{dim['s']:s}].values) for s in stat}
 
 
 
+
 # --- Plot ---
+# prepare colors for stations
+colstat = {s: reg[r]['col'] for s in stat for r in reg.keys() if s in reg[r]['stat']}
+
 # box positions and ticks
 pos = np.zeros((len(mod), len(seq_len)))
 for i in range(len(mod)):
@@ -158,8 +155,8 @@ for s, a in zip(statord.flat, ax.flat):
     a.set_ylim([ymin-0.15*(ymax-ymin), ymax])
     
     # subplot formatting
-    a.tick_params(axis='x', labelsize=fs1, length=0)
-    a.tick_params(axis='y', labelsize=fs2)
+    a.tick_params(axis='x', labelsize=fs2, length=0)
+    a.tick_params(axis='y', labelsize=fs3)
     a.set_xticks(xticks, labels = seq_len)
     a.grid(axis='y')
     a.set_xticks(gridx, minor=True)
@@ -174,8 +171,8 @@ for s, a in zip(statord.flat, ax.flat):
 cbax = ax[statord==-1]
 for a in cbax:
     a.axis('off')
-legprops = dict(fontsize=fs0, mode='expand', alignment='center', \
-    title_fontproperties={'size':fs0, 'weight':'bold'})
+legprops = dict(fontsize=fs1, mode='expand', alignment='center', \
+    title_fontproperties={'size':fs1, 'weight':'bold'})
 
 # common legend for models
 leglab = ['{:s}'.format(models[m]) for m in mod] + \
@@ -187,8 +184,9 @@ cbax[0].legend(handles=han, labels=leglab, title = 'Models', loc='upper center',
 x, y = 2.5, 1
 rect = [(-x,-y), (x, -y), (x, y), (-x, y), (-x, -y)]
 dummy = [None] * len(reg)
-for i, r in zip(range(len(reg)), reg.keys()):
-    dummy[i] = plt.scatter([],[], s=4000, marker=rect, facecolor='none', edgecolor=colreg[r], linewidths=lwf, label=r)
+for i, ri in zip(range(len(reg)), reg.values()):
+    dummy[i] = plt.scatter([],[], s=4000, marker=rect, facecolor='none', edgecolor=ri['col'], linewidths=lwf, \
+        label=ri['name'])
 cbax[2].legend(handles=dummy, title='Regions', loc='lower center', handlelength=2.5, **legprops)
 
 # figure formatting + save figure

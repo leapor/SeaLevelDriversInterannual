@@ -1,0 +1,43 @@
+# Information for plotting regions for the manuscript figures
+# key = short key for the region
+# name = region name to be displayed
+# stat = list of station IDs belonging to the region
+# col = color to be used to represent the region
+# nameloc = [lon, lat, rotation (deg)] for displaying the name on the map
+
+#name:
+# now: Norwegian Sea
+# nor: North Sea
+# bal: Baltic Sea
+# dan: Danish Straits
+# ska: 
+
+now:
+ name: Norwegian Sea
+ stat: [509, 682, 313]
+ col: '#f1b6da'
+ nameloc: [4.7, 63.3, 15]
+ 
+nor:
+ name: North Sea
+ stat: [413, 20, 9, 22, 32, 23, 25, 236, 24, 1037, 7, 1036, 80]
+ col: '#b8e186'
+ nameloc: [3.5, 53.7, 15]
+ 
+bal:
+ name: Baltic Sea
+ stat: [118, 315, 14, 239, 376, 172, 285, 194, 79, 203, 88, 78, 2105, 69, 2106, 70]
+ col: '#4dac26'
+ nameloc: [19, 56.5, 70]
+ 
+dan:
+ name: Danish Straits
+ stat: [119, 397, 81, 113, 330, 789, 98, 120, 13, 8, 11]
+ col: '#d01c8b'
+ nameloc: [9.5, 52.5, 5]
+ 
+ska:
+ name: Skagerrak
+ stat: [302, 179]
+ col: '#000000'
+ nameloc: [7.5, 57, 18]

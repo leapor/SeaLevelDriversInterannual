@@ -39,7 +39,7 @@ resdir = config['dirs']['data'] + config['dirs']['ana']
 figdir = config['dirs']['figs'] + config['dirs']['fin']
 
 resfile = 'ResultsTestSet2012-2016.nc'
-figname = 'FeatureImportanceMap.jpg'
+figname = 'Fig5_FeatureImportance.jpg'
 
 mincont = 2 # minimal contribution
 
@@ -52,7 +52,7 @@ proj = ccrs.PlateCarree()
 
 marker, msize = '^', [100,400]
 lc = 'lightgrey'   # land color
-cmap = 'gist_stern_r'
+cmap = 'afmhot_r'
 lw, lw0 = 1.5, 0.6
 
 fs0, fs1, fs2 = 20, 16, 14
@@ -125,9 +125,10 @@ iqrs, legend = convert_to_marker_size(iqr, lims=msize)
 # --- Plot ---
 # --------------------------------------------
 # prepare colormaps
-bounds = [mincont, 5, 10, 20, 30, 40, 50, 60, 80, 100]#list(range(mincont, 101, 10))
+bounds = [mincont, 5, 10, 20, 30, 40, 50, 60, 80, 100]
 norm = BoundaryNorm(boundaries=bounds, ncolors=len(bounds)+1, extend='both')
-cmap = ListedColormap(plt.get_cmap(cmap)(np.linspace(0, 0.95, len(bounds)+1)))
+subset = [0] + list(np.linspace(0.3, 0.9, len(bounds)))
+cmap = ListedColormap(plt.get_cmap(cmap)(subset))
 
 # subplot letters
 letters = string.ascii_lowercase
